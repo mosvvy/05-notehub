@@ -67,7 +67,7 @@ export default function NoteForm() {
           as="select"
           name="tag"
           id={`${fieldId}-tag`}
-          className={css.input}
+          className={css.select}
         >
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
@@ -75,12 +75,13 @@ export default function NoteForm() {
           <option value="Meeting">Meeting</option>
           <option value="Shopping">Shopping</option>
         </Field>
+        <ErrorMessage name="tag" component="span" className={css.error} />
 
-        <button type="submit" className={css.submitButton}>
-          Submit
-        </button>
         <button type="reset" className={css.cancelButton}>
           Cancel
+        </button>
+        <button type="submit" className={css.submitButton}>
+          Create note
         </button>
       </Form>
     </Formik>
