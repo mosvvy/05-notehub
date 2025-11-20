@@ -2,6 +2,12 @@ import { useId } from "react";
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from "formik";
 import * as Yup from "yup";
 import css from "./NoteForm.module.css";
+import { createNote } from "../../services/noteService";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+interface NoteFormProps {
+  onClose: () => void;
+}
 
 interface NoteFormValues {
   title: string;
@@ -12,29 +18,46 @@ interface NoteFormValues {
 const initialValues: NoteFormValues = {
   title: "",
   content: "",
-  tag: "",
+  tag: "Todo",
 };
 
 const validationSchema = Yup.object().shape({
   title: Yup.string()
-    .min(2, "Title too short")
+    .min(3, "Title too short")
     .max(50, "Title too long")
     .required("Title is required"),
-  content: Yup.string()
-    .min(5, "Message too short")
-    .max(300, "Message too long"),
-  tag: Yup.string().required("Select tag"),
+  content: Yup.string().max(500, "Message too long"),
+  tag: Yup.string()
+    .matches(/(Work|Personal|Meeting|Shopping|Todo)/)
+    .required("Tag is required"),
 });
 
-export default function NoteForm() {
+export default function NoteForm({ onClose }: NoteFormProps) {
   const fieldId = useId();
+  const queryClient = useQueryClient();
+
+  const { mutate: createNoteM } = useMutation({
+    mutationFn: (values: {
+      title: string;
+      content: string | null;
+      tag: string;
+    }) => createNote(values.title, values.content, values.tag),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+    },
+  });
 
   const handleSubmit = (
     values: NoteFormValues,
     actions: FormikHelpers<NoteFormValues>
   ) => {
-    console.log("Form submitted:", values);
+    createNoteM(values);
     actions.resetForm();
+    onClose();
+  };
+
+  const handleReset = () => {
+    onClose();
   };
 
   return (
@@ -42,6 +65,7 @@ export default function NoteForm() {
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      onReset={handleReset}
     >
       <Form className={css.form}>
         <label htmlFor={`${fieldId}-title`}>Title</label>

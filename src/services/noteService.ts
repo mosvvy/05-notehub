@@ -20,7 +20,7 @@ src/services/noteService.ts.
  */
 
 import axios from "axios";
-import type Note from "../types/note";
+import type { Note } from "../types/note";
 
 interface NotesHttpResponse {
   notes: Note[];
@@ -52,15 +52,13 @@ async function fetchNotes(
 
 async function createNote(
   title: string,
-  content: string,
+  content: string | null,
   tag: string
 ): Promise<Note> {
   const response = await instance.post<Note>("/notes", {
-    params: {
-      title: title,
-      content: content,
-      tag: tag,
-    },
+    title: title,
+    content: content,
+    tag: tag,
   });
   return response.data;
 }
