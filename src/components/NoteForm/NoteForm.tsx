@@ -44,6 +44,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     }) => createNote(values.title, values.content, values.tag),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
+      onClose();
     },
   });
 
@@ -53,7 +54,6 @@ export default function NoteForm({ onClose }: NoteFormProps) {
   ) => {
     createNoteM(values);
     actions.resetForm();
-    onClose();
   };
 
   const handleReset = () => {

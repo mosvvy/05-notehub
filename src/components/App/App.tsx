@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchNotes } from "../../services/noteService";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useDebouncedCallback } from "use-debounce";
@@ -31,15 +31,18 @@ function App() {
   });
 
   const totalPages = data?.totalPages ?? 0;
-  if (data?.notes.length === 0)
-    showToastError("No movies found for your request.");
+
+  useEffect(() => {
+    if (data?.notes.length === 0)
+      showToastError("No notes found for your request.");
+  }, [data]);
 
   const handleSearch = async (newQuery: string) => {
     setSearchQuery(newQuery);
     setCurrentPage(1);
   };
 
-  const onSeqrchQueryChange = useDebouncedCallback(
+  const onSearchQueryChange = useDebouncedCallback(
     (query: string) => handleSearch(query),
     300
   );
@@ -50,7 +53,7 @@ function App() {
         <Toaster />
       </div>
       <header className={css.toolbar}>
-        <SearchBox onChange={onSeqrchQueryChange} />
+        <SearchBox onChange={onSearchQueryChange} />
         {totalPages > 1 && (
           <Pagination
             totalPages={totalPages}
